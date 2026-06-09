@@ -1,9 +1,34 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { ChevronDown, Search, MapPin, Briefcase, Clock, Users, Lightbulb, Target, Gamepad2, BookOpen, Globe, Star, ChevronRight, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ChevronDown, Search, MapPin, Briefcase, Clock, Users, Lightbulb, Target, Gamepad2, BookOpen, Globe, Star, ChevronRight, Menu, X, Loader2, Upload, AlertTriangle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+
+interface Job {
+  id: number;
+  title: string;
+  department: string;
+  location: string;
+  employment_type: 'internship' | 'fulltime' | null;
+  description: string;
+  skills: string[];
+  min_salary: string;
+  max_salary: string;
+  salary_frequency: 'annual' | 'monthly';
+  application_deadline: string;
+  application_template: 'internship' | 'fulltime' | 'custom';
+  status: 'published' | 'draft';
+  
+  // Custom form toggles
+  customize_resume: boolean;
+  customize_cover_letter: boolean;
+  customize_portfolio: boolean;
+  customize_phone: boolean;
+  
+  created_at: string;
+}
 
 const fadeInUp = {
   initial: { opacity: 0, y: 40 },
@@ -19,62 +44,41 @@ const staggerContainer = {
 }
 
 export default function Page() {
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0)
   const [selectedDept, setSelectedDept] = useState('All')
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const jobs = [
-    {
-      title: 'Frontend Developer',
-      department: 'Engineering',
-      location: 'Bangalore, India',
-      type: 'Full-time',
-      experience: '2-4 years',
-      description: 'Build stunning user interfaces with React and Next.js for custom PC configurator.',
-    },
-    {
-      title: 'Backend Developer',
-      department: 'Engineering',
-      location: 'Bangalore, India',
-      type: 'Full-time',
-      experience: '3-5 years',
-      description: 'Design scalable APIs and databases powering the NukePC ecosystem.',
-    },
-    {
-      title: 'Full Stack Developer',
-      department: 'Engineering',
-      location: 'Remote',
-      type: 'Full-time',
-      experience: '3-6 years',
-      description: 'Own end-to-end features from database to UI for our platform.',
-    },
-    {
-      title: 'UI/UX Designer',
-      department: 'Design',
-      location: 'Bangalore, India',
-      type: 'Full-time',
-      experience: '2-4 years',
-      description: 'Create world-class design experiences for gaming PC enthusiasts.',
-    },
-    {
-      title: 'Digital Marketing Executive',
-      department: 'Marketing',
-      location: 'Bangalore, India',
-      type: 'Full-time',
-      experience: '1-3 years',
-      description: 'Drive brand awareness and engagement across digital channels.',
-    },
-    {
-      title: 'Customer Support Executive',
-      department: 'Operations',
-      location: 'Bangalore, India',
-      type: 'Full-time',
-      experience: 'Fresher-2 years',
-      description: 'Deliver exceptional support to our growing customer base.',
-    },
-  ]
+  // Dynamic API states
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
+  const fetchJobs = async () => {
+    try {
+      setLoading(true)
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+      const res = await fetch(`${baseUrl}/jobs/`)
+      if (!res.ok) {
+        throw new Error(`Failed to fetch jobs: ${res.statusText}`)
+      }
+      const data = await res.json()
+      const jobsList = Array.isArray(data) ? data : (data && Array.isArray(data.results) ? data.results : [])
+      const publishedJobs = jobsList.filter((job: Job) => !job.status || job.status === 'published')
+      setJobs(publishedJobs)
+      setError(null)
+    } catch (err: any) {
+      console.error(err)
+      setError('Could not connect to the job listings server. Please ensure the backend is running and try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  useEffect(() => {
+    fetchJobs()
+  }, [])
 
   const whyJoinUs = [
     {
@@ -161,9 +165,11 @@ export default function Page() {
     },
   ]
 
-  const filteredJobs = selectedDept === 'All' 
-    ? jobs 
-    : jobs.filter(job => job.department === selectedDept)
+  const filteredJobs = jobs.filter((job) => {
+    const matchesDept = selectedDept === 'All' || job.department.toLowerCase() === selectedDept.toLowerCase()
+    const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesDept && matchesSearch
+  })
 
   return (
     <div className="min-h-screen bg-[#050505] text-white overflow-hidden">
@@ -236,6 +242,7 @@ export default function Page() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <motion.button 
+                onClick={() => document.getElementById('jobs-section')?.scrollIntoView({ behavior: 'smooth' })}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-[#FF5A2C] hover:bg-[#ff4d1a] text-white px-8 py-4 rounded-full font-bold transition flex items-center justify-center gap-2"
@@ -325,7 +332,7 @@ export default function Page() {
       </section>
 
       {/* Open Positions Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0a]">
+      <section id="jobs-section" className="py-20 px-4 sm:px-6 lg:px-8 bg-[#0a0a0a]">
         <div className="max-w-7xl mx-auto">
           <motion.div {...fadeInUp} className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">Open <span className="text-[#FF5A2C]">Positions</span></h2>
@@ -338,78 +345,143 @@ export default function Page() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
               <input
                 type="text"
-                placeholder="Search positions..."
+                placeholder="Search positions by title..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-[#1a1a1a] border border-[#222222] rounded-lg pl-12 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF5A2C] transition"
               />
             </div>
 
             {/* Department Filter */}
             <div className="flex flex-wrap gap-3">
-              {['All', 'Engineering', 'Design', 'Marketing', 'Operations'].map((dept) => (
-                <button
-                  key={dept}
-                  onClick={() => setSelectedDept(dept)}
-                  className={`px-6 py-2 rounded-full font-medium transition ${
-                    selectedDept === dept
-                      ? 'bg-[#FF5A2C] text-white'
-                      : 'bg-[#1a1a1a] text-gray-400 hover:text-white border border-[#222222]'
-                  }`}
-                >
-                  {dept}
-                </button>
-              ))}
+              {(() => {
+                const defaultDepts = ['All', 'Engineering', 'Design', 'Marketing', 'Operations']
+                const departments = jobs.length > 0 
+                  ? ['All', ...Array.from(new Set(jobs.map(j => j.department))).filter(Boolean)] 
+                  : defaultDepts
+                return departments.map((dept) => (
+                  <button
+                    key={dept}
+                    onClick={() => setSelectedDept(dept)}
+                    className={`px-6 py-2 rounded-full font-medium transition ${
+                      selectedDept.toLowerCase() === dept.toLowerCase()
+                        ? 'bg-[#FF5A2C] text-white'
+                        : 'bg-[#1a1a1a] text-gray-400 hover:text-white border border-[#222222]'
+                    }`}
+                  >
+                    {dept}
+                  </button>
+                ))
+              })()}
             </div>
           </motion.div>
 
           {/* Job Cards */}
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="whileInView"
-            viewport={{ once: true }}
-            className="space-y-4"
-          >
-            {filteredJobs.map((job, idx) => (
-              <motion.div
-                key={idx}
-                variants={fadeInUp}
-                whileHover={{ x: 10, boxShadow: '0 0 30px rgba(255, 90, 44, 0.15)' }}
-                className="bg-[#1a1a1a] border border-[#222222] rounded-xl p-6 hover:border-[#FF5A2C]/50 transition cursor-pointer group"
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-400 bg-[#1a1a1a]/30 border border-[#222222] rounded-2xl">
+              <Loader2 className="animate-spin text-[#FF5A2C] mb-4" size={40} />
+              <p className="text-lg font-medium">Loading open positions...</p>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto bg-[#1a1a1a]/30 border border-[#222222] rounded-2xl px-6">
+              <AlertTriangle className="text-[#ff3333] mb-4" size={40} />
+              <p className="text-lg font-medium text-white mb-2">Failed to load positions</p>
+              <p className="text-gray-400 text-sm mb-6">{error}</p>
+              <button
+                onClick={fetchJobs}
+                className="bg-[#FF5A2C] hover:bg-[#ff4d1a] text-white px-6 py-2 rounded-full font-bold transition text-sm"
               >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-[#FF5A2C] transition">{job.title}</h3>
-                    <p className="text-gray-400 mb-4">{job.description}</p>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <Briefcase size={16} className="text-[#FF5A2C]" />
-                        {job.department}
+                Try Again
+              </button>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="text-center py-20 text-gray-500 bg-[#1a1a1a]/30 border border-[#222222] rounded-2xl">
+              <p className="text-lg font-medium text-gray-400">No open positions found matching your criteria.</p>
+              <p className="text-sm mt-2 text-gray-600">Try adjusting your search query or department filters.</p>
+            </div>
+          ) : (
+            <motion.div 
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="whileInView"
+              viewport={{ once: true }}
+              className="space-y-4"
+            >
+              {filteredJobs.map((job, idx) => (
+                <motion.div
+                  key={job.id || idx}
+                  variants={fadeInUp}
+                  whileHover={{ x: 10, boxShadow: '0 0 30px rgba(255, 90, 44, 0.15)' }}
+                  onClick={() => router.push(`/jobs/${job.id}`)}
+                  className="bg-[#1a1a1a] border border-[#222222] rounded-xl p-6 hover:border-[#FF5A2C]/50 transition cursor-pointer group"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold mb-2 group-hover:text-[#FF5A2C] transition">{job.title}</h3>
+                      <p className="text-gray-400 mb-4">{job.description}</p>
+                      
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-500 items-center">
+                        <div className="flex items-center gap-2">
+                          <Briefcase size={16} className="text-[#FF5A2C]" />
+                          {job.department}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={16} className="text-[#FF5A2C]" />
+                          {job.location}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock size={16} className="text-[#FF5A2C]" />
+                          {job.employment_type === 'fulltime' ? 'Full-time' : job.employment_type === 'internship' ? 'Internship' : 'Contract'}
+                        </div>
+                        {job.min_salary && job.max_salary && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#FF5A2C] font-semibold text-base">₹</span>
+                            <span>
+                              {(() => {
+                                const minVal = parseFloat(job.min_salary);
+                                const maxVal = parseFloat(job.max_salary);
+                                if (isNaN(minVal) || isNaN(maxVal)) return `${job.min_salary} - ${job.max_salary} / ${job.salary_frequency}`;
+                                const formatter = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
+                                return `${formatter.format(minVal)} - ${formatter.format(maxVal)} / ${job.salary_frequency === 'annual' ? 'yr' : 'mo'}`;
+                              })()}
+                            </span>
+                          </div>
+                        )}
+                        {job.application_deadline && (
+                          <div className="text-xs text-gray-600 bg-gray-900 border border-gray-800 px-2 py-0.5 rounded">
+                            Apply by: {new Date(job.application_deadline).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} className="text-[#FF5A2C]" />
-                        {job.location}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock size={16} className="text-[#FF5A2C]" />
-                        {job.type}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Star size={16} className="text-[#FF5A2C]" />
-                        {job.experience}
-                      </div>
+
+                      {/* Skills */}
+                      {job.skills && job.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {job.skills.map((skill, sIdx) => (
+                            <span key={sIdx} className="text-xs bg-[#FF5A2C]/10 text-[#FF5A2C] border border-[#FF5A2C]/20 px-2.5 py-0.5 rounded-full font-medium">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
+                    
+                    <motion.button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent card onClick trigger
+                        router.push(`/jobs/${job.id}`);
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-[#FF5A2C] hover:bg-[#ff4d1a] text-white px-8 py-3 rounded-lg font-bold transition whitespace-nowrap self-start md:self-center"
+                    >
+                      Apply Now
+                    </motion.button>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-[#FF5A2C] hover:bg-[#ff4d1a] text-white px-8 py-3 rounded-lg font-bold transition whitespace-nowrap self-start md:self-center"
-                  >
-                    Apply Now
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </section>
 
@@ -570,6 +642,7 @@ export default function Page() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <motion.button
+              onClick={() => document.getElementById('jobs-section')?.scrollIntoView({ behavior: 'smooth' })}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="bg-[#FF5A2C] hover:bg-[#ff4d1a] text-white px-8 py-4 rounded-full font-bold transition text-lg"
