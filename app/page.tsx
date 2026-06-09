@@ -5,6 +5,7 @@ import { ChevronDown, Search, MapPin, Briefcase, Clock, Users, Lightbulb, Target
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 interface Job {
   id: number;
@@ -179,17 +180,23 @@ export default function Page() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#FF5A2C] rounded-lg flex items-center justify-center font-bold">N</div>
-              <span className="font-bold text-lg hidden sm:inline">NukePC</span>
+              <Image 
+                src="/Nuke_Logo.png" 
+                alt="NukePC Logo" 
+                width={120} 
+                height={32} 
+                className="h-8 w-auto object-contain"
+                priority
+              />
             </motion.div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#" className="text-sm hover:text-[#FF5A2C] transition">Prebuild</a>
-              <a href="#" className="text-sm hover:text-[#FF5A2C] transition">Accessories</a>
-              <a href="#" className="text-sm hover:text-[#FF5A2C] transition">About</a>
-              <a href="#" className="text-sm font-semibold text-[#FF5A2C]">Careers</a>
-              <a href="#" className="text-sm hover:text-[#FF5A2C] transition">Gallery</a>
+            <div className="hidden md:flex items-center bg-[#151515]/90 border border-white/10 rounded-full p-1 gap-1 shadow-lg backdrop-blur-md">
+              <a href="#" className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">Prebuild</a>
+              <a href="#" className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">Accessories</a>
+              <a href="#" className="text-sm bg-white text-black px-5 py-2 rounded-full font-semibold transition-all duration-300 shadow-sm">Career</a>
+              <a href="#" className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">My Configurations</a>
+              <a href="#" className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">Gallery</a>
             </div>
 
             {/* Right Section */}
@@ -211,13 +218,13 @@ export default function Page() {
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="md:hidden pb-4 space-y-3"
+              className="md:hidden pb-4 space-y-2 border-t border-[#222222] pt-4 mt-2"
             >
-              <a href="#" className="block text-sm hover:text-[#FF5A2C] transition">Prebuild</a>
-              <a href="#" className="block text-sm hover:text-[#FF5A2C] transition">Accessories</a>
-              <a href="#" className="block text-sm hover:text-[#FF5A2C] transition">About</a>
-              <a href="#" className="block text-sm font-semibold text-[#FF5A2C]">Careers</a>
-              <a href="#" className="block text-sm hover:text-[#FF5A2C] transition">Gallery</a>
+              <a href="#" className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">Prebuild</a>
+              <a href="#" className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">Accessories</a>
+              <a href="#" className="block text-sm bg-white text-black px-3 py-2 rounded-lg font-semibold transition">About</a>
+              <a href="#" className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">My Configurations</a>
+              <a href="#" className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">Gallery</a>
             </motion.div>
           )}
         </div>

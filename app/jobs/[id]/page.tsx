@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { 
   ArrowLeft, MapPin, Briefcase, Clock, Loader2, 
   Upload, AlertTriangle, Menu, X, User, Mail, 
@@ -188,17 +189,23 @@ export default function JobDetailPage() {
               onClick={() => router.push('/')} 
               className="flex items-center gap-2 cursor-pointer group"
             >
-              <div className="w-8 h-8 bg-[#FF5A2C] rounded-lg flex items-center justify-center font-bold text-white transition group-hover:scale-105">N</div>
-              <span className="font-bold text-lg hidden sm:inline tracking-tight group-hover:text-[#FF5A2C] transition">NukePC</span>
+              <Image 
+                src="/Nuke_Logo.png" 
+                alt="NukePC Logo" 
+                width={120} 
+                height={32} 
+                className="h-8 w-auto object-contain transition group-hover:scale-105"
+                priority
+              />
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white transition">Prebuild</a>
-              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white transition">Accessories</a>
-              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white transition">About</a>
-              <a href="#" onClick={() => router.push('/')} className="text-sm font-semibold text-[#FF5A2C]">Careers</a>
-              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white transition">Gallery</a>
+            <div className="hidden md:flex items-center bg-[#151515]/90 border border-white/10 rounded-full p-1 gap-1 shadow-lg backdrop-blur-md">
+              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">Prebuild</a>
+              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">Accessories</a>
+              <a href="#" onClick={() => router.push('/')} className="text-sm bg-white text-black px-5 py-2 rounded-full font-semibold transition-all duration-300 shadow-sm">About</a>
+              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">My Configurations</a>
+              <a href="#" onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full transition-all duration-300 font-medium">Gallery</a>
             </div>
 
             {/* Right Section */}
@@ -223,13 +230,13 @@ export default function JobDetailPage() {
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="md:hidden pb-4 space-y-3"
+              className="md:hidden pb-4 space-y-2 border-t border-[#222222] pt-4 mt-2"
             >
-              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-[#FF5A2C] transition">Prebuild</a>
-              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-[#FF5A2C] transition">Accessories</a>
-              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-[#FF5A2C] transition">About</a>
-              <a href="#" onClick={() => router.push('/')} className="block text-sm font-semibold text-[#FF5A2C]">Careers</a>
-              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-[#FF5A2C] transition">Gallery</a>
+              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">Prebuild</a>
+              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">Accessories</a>
+              <a href="#" onClick={() => router.push('/')} className="block text-sm bg-white text-black px-3 py-2 rounded-lg font-semibold transition">About</a>
+              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">My Configurations</a>
+              <a href="#" onClick={() => router.push('/')} className="block text-sm text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition font-medium">Gallery</a>
             </motion.div>
           )}
         </div>
