@@ -9,26 +9,61 @@ import Image from 'next/image'
 
 interface Job {
   id: number;
-  title: string;
+  job_title: string;
+  role: string;
   department: string;
-  location: string;
-  employment_type: 'internship' | 'fulltime' | null;
-  description: string;
-  skills: string[];
-  min_salary: string;
-  max_salary: string;
-  salary_frequency: 'annual' | 'monthly';
-  application_deadline: string;
-  application_template: 'internship' | 'fulltime' | 'custom';
-  status: 'published' | 'draft';
-  
-  // Custom form toggles
-  customize_resume: boolean;
-  customize_cover_letter: boolean;
-  customize_portfolio: boolean;
-  customize_phone: boolean;
-  
+  employment_type: string;
+  candidate_level: string | null;
+  number_of_openings: number | null;
+  internship_duration: string | null;
+  work_mode: string | null;
+  office_location: string | null;
+  shift_timing: string | null;
+  application_deadline: string | null;
+  expected_joining_date: string | null;
+  stipend_amount: number | null;
+  stipend_visible: boolean;
+  ctc_min: number | null;
+  ctc_max: number | null;
+  salary_visible: boolean;
+  probation_period: string | null;
+  probation_stipend: number | null;
+  notice_period: string | null;
+  performance_bonus: boolean;
+  performance_bonus_description: string | null;
+  other_compensation: string | null;
+  min_education: string | null;
+  preferred_branch: string | null;
+  min_cgpa: number | null;
+  year_of_study: string | null;
+  graduation_year: number | null;
+  min_experience: number | null;
+  max_experience: number | null;
+  required_skills: string;
+  good_to_have_skills: string;
+  portfolio_required: boolean;
+  assignment_round: boolean;
+  assignment_description: string | null;
+  certifications: string | null;
+  previous_industry_experience: string | null;
+  led_team: boolean | null;
+  roles_responsibilities: string | null;
+  what_intern_learns: string | null;
+  what_we_offer: string | null;
+  growth_path: string | null;
+  team_structure: string | null;
+  perks_benefits: string | null;
+  additional_info: string | null;
+  screening_question_1: string | null;
+  screening_question_2: string | null;
+  screening_question_3: string | null;
+  status: string;
+  scheduled_date: string | null;
+  notify_team: boolean;
+  created_by: number;
+  created_by_email: string;
   created_at: string;
+  updated_at: string;
 }
 
 const fadeInUp = {
@@ -66,7 +101,7 @@ export default function Page() {
       }
       const data = await res.json()
       const jobsList = Array.isArray(data) ? data : (data && Array.isArray(data.results) ? data.results : [])
-      const publishedJobs = jobsList.filter((job: Job) => !job.status || job.status === 'published')
+      const publishedJobs = jobsList.filter((job: Job) => !job.status || job.status === 'Publish')
       setJobs(publishedJobs)
       setError(null)
     } catch (err: any) {
@@ -168,7 +203,7 @@ export default function Page() {
 
   const filteredJobs = jobs.filter((job) => {
     const matchesDept = selectedDept === 'All' || job.department.toLowerCase() === selectedDept.toLowerCase()
-    const matchesSearch = job.title.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesSearch = job.job_title.toLowerCase().includes(searchQuery.toLowerCase())
     return matchesDept && matchesSearch
   })
 
@@ -414,7 +449,13 @@ export default function Page() {
               viewport={{ once: true }}
               className="space-y-4"
             >
-              {filteredJobs.map((job, idx) => (
+              {filteredJobs.map((job, idx) => {
+                const parseSkills = (val: any) => Array.isArray(val) ? val : (() => { try { return JSON.parse(val || '[]'); } catch { return []; } })();
+                const skills = parseSkills(job.required_skills);
+                const goodSkills = parseSkills(job.good_to_have_skills);
+                const allSkills = [...skills, ...goodSkills];
+                const isInternship = job.employment_type === 'Internship';
+                return (
                 <motion.div
                   key={job.id || idx}
                   variants={fadeInUp}
@@ -422,71 +463,110 @@ export default function Page() {
                   onClick={() => router.push(`/jobs/${job.id}`)}
                   className="bg-[#1a1a1a] border border-[#222222] rounded-xl p-6 hover:border-[#FF5A2C]/50 transition cursor-pointer group"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold mb-2 group-hover:text-[#FF5A2C] transition">{job.title}</h3>
-                      <p className="text-gray-400 mb-4">{job.description}</p>
-                      
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-500 items-center">
-                        <div className="flex items-center gap-2">
-                          <Briefcase size={16} className="text-[#FF5A2C]" />
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      {/* Top meta row */}
+                      <div className="flex flex-wrap items-center gap-2.5 mb-3">
+                        <span className="text-xs font-medium text-[#FF5A2C] bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 px-2.5 py-1 rounded-full">
                           {job.department}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin size={16} className="text-[#FF5A2C]" />
-                          {job.location}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock size={16} className="text-[#FF5A2C]" />
-                          {job.employment_type === 'fulltime' ? 'Full-time' : job.employment_type === 'internship' ? 'Internship' : 'Contract'}
-                        </div>
-                        {job.min_salary && job.max_salary && (
+                        </span>
+                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${
+                          isInternship
+                            ? 'text-[#00cc99] bg-[#00cc99]/10 border-[#00cc99]/20'
+                            : 'text-[#0066ff] bg-[#0066ff]/10 border-[#0066ff]/20'
+                        }`}>
+                          {isInternship ? 'Internship' : job.employment_type}
+                        </span>
+                        {job.number_of_openings && (
+                          <span className="text-xs text-gray-500 bg-gray-800 border border-gray-700 px-2 py-1 rounded-full">
+                            {job.number_of_openings} opening{job.number_of_openings > 1 ? 's' : ''}
+                          </span>
+                        )}
+                        {job.work_mode && (
+                          <span className="text-xs text-gray-400 bg-gray-800/50 border border-gray-700/50 px-2 py-1 rounded-full">
+                            {job.work_mode}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-xl font-bold mb-2 group-hover:text-[#FF5A2C] transition">{job.job_title}</h3>
+                      
+                      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500 items-center mb-3">
+                        {job.office_location && (
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[#FF5A2C] font-semibold text-base">₹</span>
-                            <span>
-                              {(() => {
-                                const minVal = parseFloat(job.min_salary);
-                                const maxVal = parseFloat(job.max_salary);
-                                if (isNaN(minVal) || isNaN(maxVal)) return `${job.min_salary} - ${job.max_salary} / ${job.salary_frequency}`;
-                                const formatter = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
-                                return `${formatter.format(minVal)} - ${formatter.format(maxVal)} / ${job.salary_frequency === 'annual' ? 'yr' : 'mo'}`;
-                              })()}
-                            </span>
+                            <MapPin size={14} className="text-[#FF5A2C]" />
+                            {job.office_location}
                           </div>
                         )}
-                        {job.application_deadline && (
-                          <div className="text-xs text-gray-600 bg-gray-900 border border-gray-800 px-2 py-0.5 rounded">
-                            Apply by: {new Date(job.application_deadline).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                        {job.candidate_level && (
+                          <div className="flex items-center gap-1.5">
+                            <Briefcase size={14} className="text-[#FF5A2C]" />
+                            {job.candidate_level}
+                          </div>
+                        )}
+                        {(job.min_experience != null || job.max_experience != null) && (
+                          <div className="flex items-center gap-1.5">
+                            <Clock size={14} className="text-[#FF5A2C]" />
+                            {job.min_experience != null ? job.min_experience : 0} - {job.max_experience != null ? job.max_experience : 0} yrs
                           </div>
                         )}
                       </div>
 
+                      {/* Compensation */}
+                      <div className="flex flex-wrap items-center gap-3 mb-3">
+                        {isInternship && job.stipend_visible && job.stipend_amount != null && (
+                          <div className="flex items-center gap-1 text-sm font-semibold text-[#00cc99]">
+                            <span>₹{Intl.NumberFormat('en-IN').format(job.stipend_amount)}</span>
+                            <span className="text-xs text-gray-500 font-normal">/mo</span>
+                          </div>
+                        )}
+                        {!isInternship && job.salary_visible && job.ctc_min != null && (
+                          <div className="flex items-center gap-1 text-sm font-semibold text-[#00cc99]">
+                            <span>₹{Intl.NumberFormat('en-IN').format(job.ctc_min)}</span>
+                            {job.ctc_max != null && job.ctc_max !== job.ctc_min && (
+                              <span> - ₹{Intl.NumberFormat('en-IN').format(job.ctc_max)}</span>
+                            )}
+                            <span className="text-xs text-gray-500 font-normal">/yr</span>
+                          </div>
+                        )}
+                        {job.application_deadline && (
+                          <span className="text-xs text-gray-500 bg-gray-800 border border-gray-700 px-2 py-0.5 rounded">
+                            Apply by: {new Date(job.application_deadline).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </span>
+                        )}
+                      </div>
+
                       {/* Skills */}
-                      {job.skills && job.skills.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-4">
-                          {job.skills.map((skill, sIdx) => (
+                      {allSkills.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {allSkills.slice(0, 5).map((skill: string, sIdx: number) => (
                             <span key={sIdx} className="text-xs bg-[#FF5A2C]/10 text-[#FF5A2C] border border-[#FF5A2C]/20 px-2.5 py-0.5 rounded-full font-medium">
                               {skill}
                             </span>
                           ))}
+                          {allSkills.length > 5 && (
+                            <span className="text-xs text-gray-500 bg-gray-800 border border-gray-700 px-2.5 py-0.5 rounded-full">
+                              +{allSkills.length - 5}
+                            </span>
+                          )}
                         </div>
                       )}
                     </div>
                     
                     <motion.button
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent card onClick trigger
+                        e.stopPropagation();
                         router.push(`/jobs/${job.id}`);
                       }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-[#FF5A2C] hover:bg-[#ff4d1a] text-white px-8 py-3 rounded-lg font-bold transition whitespace-nowrap self-start md:self-center"
+                      className="bg-[#FF5A2C] hover:bg-[#ff4d1a] text-white px-8 py-3 rounded-lg font-bold transition whitespace-nowrap self-start md:self-center shrink-0"
                     >
                       Apply Now
                     </motion.button>
                   </div>
                 </motion.div>
-              ))}
+              )})}
             </motion.div>
           )}
         </div>

@@ -13,26 +13,61 @@ import {
 
 interface Job {
   id: number;
-  title: string;
+  job_title: string;
+  role: string;
   department: string;
-  location: string;
-  employment_type: 'internship' | 'fulltime' | null;
-  description: string;
-  skills: string[];
-  min_salary: string;
-  max_salary: string;
-  salary_frequency: 'annual' | 'monthly';
-  application_deadline: string;
-  application_template: 'internship' | 'fulltime' | 'custom';
-  status: 'published' | 'draft';
-  
-  // Custom form toggles
-  customize_resume: boolean;
-  customize_cover_letter: boolean;
-  customize_portfolio: boolean;
-  customize_phone: boolean;
-  
+  employment_type: string;
+  candidate_level: string | null;
+  number_of_openings: number | null;
+  internship_duration: string | null;
+  work_mode: string | null;
+  office_location: string | null;
+  shift_timing: string | null;
+  application_deadline: string | null;
+  expected_joining_date: string | null;
+  stipend_amount: number | null;
+  stipend_visible: boolean;
+  ctc_min: number | null;
+  ctc_max: number | null;
+  salary_visible: boolean;
+  probation_period: string | null;
+  probation_stipend: number | null;
+  notice_period: string | null;
+  performance_bonus: boolean;
+  performance_bonus_description: string | null;
+  other_compensation: string | null;
+  min_education: string | null;
+  preferred_branch: string | null;
+  min_cgpa: number | null;
+  year_of_study: string | null;
+  graduation_year: number | null;
+  min_experience: number | null;
+  max_experience: number | null;
+  required_skills: string;
+  good_to_have_skills: string;
+  portfolio_required: boolean;
+  assignment_round: boolean;
+  assignment_description: string | null;
+  certifications: string | null;
+  previous_industry_experience: string | null;
+  led_team: boolean | null;
+  roles_responsibilities: string | null;
+  what_intern_learns: string | null;
+  what_we_offer: string | null;
+  growth_path: string | null;
+  team_structure: string | null;
+  perks_benefits: string | null;
+  additional_info: string | null;
+  screening_question_1: string | null;
+  screening_question_2: string | null;
+  screening_question_3: string | null;
+  status: string;
+  scheduled_date: string | null;
+  notify_team: boolean;
+  created_by: number;
+  created_by_email: string;
   created_at: string;
+  updated_at: string;
 }
 
 const fadeInUp = {
@@ -111,25 +146,25 @@ export default function JobDetailPage() {
       payload.append('full_name', formData.fullName || '')
       payload.append('email', formData.email || '')
 
-      if (job.customize_phone && formData.phone) {
+      if (formData.phone) {
         payload.append('phone', formData.phone)
       }
-      if (job.customize_portfolio && formData.portfolio) {
+      if (job.portfolio_required && formData.portfolio) {
         payload.append('portfolio', formData.portfolio)
       }
-      if (job.customize_cover_letter && formData.cover_letter) {
+      if (formData.cover_letter) {
         payload.append('cover_letter', formData.cover_letter)
       }
-      if (job.customize_resume && resumeFile) {
+      if (resumeFile) {
         payload.append('resume', resumeFile)
       }
 
-      if (job.application_template === 'internship') {
+      if (job.employment_type === 'Internship') {
         payload.append('college_name', formData.college_name || '')
         payload.append('degree_branch', formData.degree_branch || '')
         payload.append('year_of_study', formData.year_of_study || '')
         payload.append('cgpa', formData.cgpa || '')
-      } else if (job.application_template === 'fulltime') {
+      } else if (job.employment_type === 'Full-time') {
         payload.append('current_company', formData.current_company || '')
         payload.append('total_experience', formData.total_experience || '')
         payload.append('current_ctc', formData.current_ctc || '')
@@ -281,97 +316,347 @@ export default function JobDetailPage() {
             >
               {/* Header Title Card */}
               <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
-                <span className="text-xs font-bold text-[#FF5A2C] uppercase tracking-widest bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 px-3 py-1.5 rounded-full">
-                  {job.department}
-                </span>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-5 leading-tight tracking-tight">
-                  {job.title}
+                <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                  <span className="text-xs font-bold text-[#FF5A2C] uppercase tracking-widest bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 px-3 py-1.5 rounded-full">
+                    {job.department}
+                  </span>
+                  <span className={`text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border ${
+                    job.employment_type === 'Internship'
+                      ? 'text-[#00cc99] bg-[#00cc99]/10 border-[#00cc99]/20'
+                      : 'text-[#0066ff] bg-[#0066ff]/10 border-[#0066ff]/20'
+                  }`}>
+                    {job.employment_type === 'Internship' ? 'Internship' : job.employment_type}
+                  </span>
+                  {job.candidate_level && (
+                    <span className="text-xs font-medium text-gray-400 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-full">
+                      {job.candidate_level}
+                    </span>
+                  )}
+                  {job.number_of_openings && (
+                    <span className="text-xs font-medium text-gray-400 bg-gray-800 border border-gray-700 px-3 py-1.5 rounded-full">
+                      {job.number_of_openings} opening{job.number_of_openings > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-2 leading-tight tracking-tight">
+                  {job.job_title}
                 </h1>
+                {job.role && job.role !== job.job_title && (
+                  <p className="text-gray-400 text-sm mt-1.5">{job.role}</p>
+                )}
                 
-                <div className="flex flex-wrap gap-5 text-sm text-gray-400 mt-6 items-center border-t border-[#1f1f1f] pt-5">
-                  <div className="flex items-center gap-2">
-                    <Briefcase size={16} className="text-[#FF5A2C]" />
-                    <span>{job.department}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin size={16} className="text-[#FF5A2C]" />
-                    <span>{job.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-[#FF5A2C]" />
-                    <span>{job.employment_type === 'fulltime' ? 'Full-time' : job.employment_type === 'internship' ? 'Internship' : 'Contract'}</span>
-                  </div>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-400 mt-6 items-center border-t border-[#1f1f1f] pt-5">
+                  {job.office_location && (
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} className="text-[#FF5A2C]" />
+                      <span>{job.office_location}</span>
+                    </div>
+                  )}
+                  {job.work_mode && (
+                    <div className="flex items-center gap-2">
+                      <Briefcase size={16} className="text-[#FF5A2C]" />
+                      <span>{job.work_mode}</span>
+                    </div>
+                  )}
+                  {job.employment_type && (
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} className="text-[#FF5A2C]" />
+                      <span>{job.employment_type === 'Internship' ? 'Internship' : 'Full-time'}</span>
+                    </div>
+                  )}
+                  {job.shift_timing && (
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} className="text-[#FF5A2C]" />
+                      <span>{job.shift_timing} Shift</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Compensation Details Card */}
-              {job.min_salary && job.max_salary && (
-                <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 backdrop-blur-md grid md:grid-cols-2 gap-6 items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[#00cc99]/10 border border-[#00cc99]/20 flex items-center justify-center">
-                      <span className="text-[#00cc99] font-bold text-xl">₹</span>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Salary Range</p>
-                      <p className="text-lg font-bold text-white mt-0.5">
-                        {(() => {
-                          const minVal = parseFloat(job.min_salary);
-                          const maxVal = parseFloat(job.max_salary);
-                          if (isNaN(minVal) || isNaN(maxVal)) return `${job.min_salary} - ${job.max_salary}`;
-                          const formatter = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
-                          return `₹${formatter.format(minVal)} - ₹${formatter.format(maxVal)}`;
-                        })()}
-                        <span className="text-xs text-gray-400 font-medium ml-1">
-                          / {job.salary_frequency === 'annual' ? 'yr' : 'mo'}
-                        </span>
-                      </p>
-                    </div>
+              {((!job.employment_type || job.employment_type !== 'Internship') && job.salary_visible && job.ctc_min != null) || (job.employment_type === 'Internship' && job.stipend_visible && job.stipend_amount != null) || job.application_deadline || job.expected_joining_date ? (
+                <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 backdrop-blur-md">
+                  <div className="grid md:grid-cols-2 gap-6 items-center">
+                    {job.employment_type !== 'Internship' && job.salary_visible && job.ctc_min != null && (
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#00cc99]/10 border border-[#00cc99]/20 flex items-center justify-center">
+                          <span className="text-[#00cc99] font-bold text-xl">₹</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Salary Range</p>
+                          <p className="text-lg font-bold text-white mt-0.5">
+                            ₹{Intl.NumberFormat('en-IN').format(job.ctc_min)}
+                            {job.ctc_max != null && job.ctc_max !== job.ctc_min ? ` - ₹${Intl.NumberFormat('en-IN').format(job.ctc_max)}` : ''}
+                            <span className="text-xs text-gray-400 font-medium ml-1">/ yr</span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {job.employment_type === 'Internship' && job.stipend_visible && job.stipend_amount != null && (
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-[#00cc99]/10 border border-[#00cc99]/20 flex items-center justify-center">
+                          <span className="text-[#00cc99] font-bold text-xl">₹</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Stipend</p>
+                          <p className="text-lg font-bold text-white mt-0.5">
+                            ₹{Intl.NumberFormat('en-IN').format(job.stipend_amount)}
+                            <span className="text-xs text-gray-400 font-medium ml-1">/ mo</span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {job.application_deadline && (
+                      <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-[#1f1f1f] pt-4 md:pt-0 md:pl-6">
+                        <div className="w-12 h-12 rounded-xl bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 flex items-center justify-center">
+                          <Calendar className="text-[#FF5A2C]" size={20} />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Apply Before</p>
+                          <p className="text-sm font-bold text-white mt-0.5">
+                            {new Date(job.application_deadline).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  
-                  {job.application_deadline && (
-                    <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-[#1f1f1f] pt-4 md:pt-0 md:pl-6">
-                      <div className="w-12 h-12 rounded-xl bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 flex items-center justify-center">
-                        <Calendar className="text-[#FF5A2C]" size={20} />
+                  {job.expected_joining_date && (
+                    <div className="mt-4 pt-4 border-t border-[#1f1f1f] flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-[#0066ff]/10 border border-[#0066ff]/20 flex items-center justify-center flex-shrink-0">
+                        <Calendar className="text-[#0066ff]" size={18} />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Apply Before</p>
+                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Expected Joining</p>
                         <p className="text-sm font-bold text-white mt-0.5">
-                          {new Date(job.application_deadline).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                          {new Date(job.expected_joining_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                         </p>
                       </div>
                     </div>
                   )}
                 </div>
+              ) : null}
+
+              {/* Role Requirements Card */}
+              {(job.min_education || job.preferred_branch || job.min_cgpa != null || (job.min_experience != null) || (job.max_experience != null) || job.year_of_study || job.graduation_year || job.led_team != null) && (
+                <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
+                  <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider border-l-2 border-[#FF5A2C] pl-3">
+                    Role Requirements
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    {job.min_education && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3.5">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Education</p>
+                        <p className="text-white font-medium text-xs">{job.min_education}</p>
+                      </div>
+                    )}
+                    {job.preferred_branch && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3.5">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Preferred Branch</p>
+                        <p className="text-white font-medium text-xs">{job.preferred_branch}</p>
+                      </div>
+                    )}
+                    {job.min_cgpa != null && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3.5">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Min CGPA</p>
+                        <p className="text-white font-medium text-xs">{job.min_cgpa}</p>
+                      </div>
+                    )}
+                    {(job.min_experience != null || job.max_experience != null) && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3.5">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Experience</p>
+                        <p className="text-white font-medium text-xs">
+                          {job.min_experience != null ? job.min_experience : 0} - {job.max_experience != null ? job.max_experience : '∞'} yrs
+                        </p>
+                      </div>
+                    )}
+                    {job.year_of_study && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3.5">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Year of Study</p>
+                        <p className="text-white font-medium text-xs">{job.year_of_study}</p>
+                      </div>
+                    )}
+                    {job.graduation_year && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3.5">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Grad Year</p>
+                        <p className="text-white font-medium text-xs">{job.graduation_year}</p>
+                      </div>
+                    )}
+                    {job.led_team != null && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3.5">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider mb-1">Team Lead</p>
+                        <p className="text-white font-medium text-xs">{job.led_team ? 'Yes' : 'No'}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
 
-              {/* Required Skills Card */}
-              {job.skills && job.skills.length > 0 && (
+              {/* Skills Card */}
+              {(() => {
+                const parseSkills = (val: any) => Array.isArray(val) ? val : (() => { try { return JSON.parse(val || '[]'); } catch { return []; } })();
+                return parseSkills(job.required_skills).length > 0;
+              })() && (
                 <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
                   <h3 className="text-base font-bold text-white mb-4 uppercase tracking-wider border-l-2 border-[#FF5A2C] pl-3">
                     Required Skills
                   </h3>
                   <div className="flex flex-wrap gap-2.5">
-                    {job.skills.map((skill, sIdx) => (
-                      <span 
-                        key={sIdx} 
-                        className="text-xs bg-[#FF5A2C]/5 text-gray-300 border border-white/5 hover:border-[#FF5A2C]/40 px-3.5 py-2 rounded-xl font-medium transition cursor-default hover:text-white"
-                      >
+                    {(() => {
+                      const parseSkills = (val: any) => Array.isArray(val) ? val : (() => { try { return JSON.parse(val || '[]'); } catch { return []; } })();
+                      return parseSkills(job.required_skills);
+                    })().map((skill: string, sIdx: number) => (
+                      <span key={sIdx} className="text-xs bg-[#FF5A2C]/5 text-gray-300 border border-white/5 hover:border-[#FF5A2C]/40 px-3.5 py-2 rounded-xl font-medium transition cursor-default hover:text-white">
                         {skill}
                       </span>
                     ))}
                   </div>
+                  {(() => {
+                    const parseSkills = (val: any) => Array.isArray(val) ? val : (() => { try { return JSON.parse(val || '[]'); } catch { return []; } })();
+                    return parseSkills(job.good_to_have_skills).length > 0;
+                  })() && (
+                    <>
+                      <h4 className="text-sm font-bold text-gray-400 mt-6 mb-3 uppercase tracking-wider border-l-2 border-gray-600 pl-3">
+                        Good to Have
+                      </h4>
+                      <div className="flex flex-wrap gap-2.5">
+                        {(() => {
+                          const parseSkills = (val: any) => Array.isArray(val) ? val : (() => { try { return JSON.parse(val || '[]'); } catch { return []; } })();
+                          return parseSkills(job.good_to_have_skills);
+                        })().map((skill: string, sIdx: number) => (
+                          <span key={sIdx} className="text-xs bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500 px-3.5 py-2 rounded-xl font-medium transition cursor-default">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
-              {/* Job Description Card */}
-              <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
-                <h3 className="text-base font-bold text-white mb-6 uppercase tracking-wider border-l-2 border-[#FF5A2C] pl-3">
-                  Job Description
-                </h3>
-                <div className="text-gray-300 leading-relaxed whitespace-pre-line text-sm md:text-base space-y-4">
-                  {job.description}
+              {/* Roles & Responsibilities Card */}
+              {job.roles_responsibilities && (
+                <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
+                  <h3 className="text-base font-bold text-white mb-6 uppercase tracking-wider border-l-2 border-[#FF5A2C] pl-3">
+                    Roles & Responsibilities
+                  </h3>
+                  <div className="text-gray-300 leading-relaxed whitespace-pre-line text-sm md:text-base space-y-4">
+                    {job.roles_responsibilities}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* What We Offer / Perks / Growth */}
+              {(job.what_we_offer || job.perks_benefits || job.growth_path || job.what_intern_learns) && (
+                <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
+                  <h3 className="text-base font-bold text-white mb-6 uppercase tracking-wider border-l-2 border-[#FF5A2C] pl-3">
+                    What We Offer
+                  </h3>
+                  <div className="space-y-5">
+                    {job.what_we_offer && (
+                      <div className="text-gray-300 leading-relaxed whitespace-pre-line text-sm">
+                        <h4 className="text-white font-semibold mb-2 text-xs uppercase tracking-wider">Offer</h4>
+                        {job.what_we_offer}
+                      </div>
+                    )}
+                    {job.perks_benefits && (
+                      <div className="text-gray-300 leading-relaxed whitespace-pre-line text-sm">
+                        <h4 className="text-white font-semibold mb-2 text-xs uppercase tracking-wider">Perks & Benefits</h4>
+                        {job.perks_benefits}
+                      </div>
+                    )}
+                    {job.growth_path && (
+                      <div className="text-gray-300 leading-relaxed whitespace-pre-line text-sm">
+                        <h4 className="text-white font-semibold mb-2 text-xs uppercase tracking-wider">Growth Path</h4>
+                        {job.growth_path}
+                      </div>
+                    )}
+                    {job.what_intern_learns && (
+                      <div className="text-gray-300 leading-relaxed whitespace-pre-line text-sm">
+                        <h4 className="text-white font-semibold mb-2 text-xs uppercase tracking-wider">What You'll Learn</h4>
+                        {job.what_intern_learns}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Details Card */}
+              {(job.internship_duration || job.probation_period || job.probation_stipend != null || job.notice_period || job.shift_timing || job.performance_bonus || job.performance_bonus_description || job.other_compensation || job.certifications || job.previous_industry_experience || job.team_structure || job.assignment_round || job.assignment_description || job.additional_info) && (
+                <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
+                  <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider border-l-2 border-[#FF5A2C] pl-3">
+                    Additional Details
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {job.internship_duration && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Duration</p>
+                        <p className="text-white font-medium text-xs mt-1">{job.internship_duration}</p>
+                      </div>
+                    )}
+                    {job.probation_period && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Probation</p>
+                        <p className="text-white font-medium text-xs mt-1">{job.probation_period}{job.probation_stipend != null ? ` (₹${Intl.NumberFormat('en-IN').format(job.probation_stipend)}/mo)` : ''}</p>
+                      </div>
+                    )}
+                    {job.notice_period && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Notice Period</p>
+                        <p className="text-white font-medium text-xs mt-1">{job.notice_period}</p>
+                      </div>
+                    )}
+                    {job.shift_timing && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Shift</p>
+                        <p className="text-white font-medium text-xs mt-1">{job.shift_timing}</p>
+                      </div>
+                    )}
+                    {job.performance_bonus && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Performance Bonus</p>
+                        <p className="text-white font-medium text-xs mt-1">{job.performance_bonus_description || 'Yes'}</p>
+                      </div>
+                    )}
+                    {job.other_compensation && (
+                      <div className="bg-[#161616] border border-[#222222] rounded-xl p-3">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Other Comp.</p>
+                        <p className="text-white font-medium text-xs mt-1">{job.other_compensation}</p>
+                      </div>
+                    )}
+                    {job.assignment_round && job.assignment_description && (
+                      <div className="col-span-2 bg-[#161616] border border-[#222222] rounded-xl p-3">
+                        <p className="text-[10px] text-gray-500 font-semibold uppercase">Assignment Round</p>
+                        <p className="text-white font-medium text-xs mt-1">{job.assignment_description}</p>
+                      </div>
+                    )}
+                  </div>
+                  {job.additional_info && (
+                    <div className="mt-4 pt-4 border-t border-[#1f1f1f]">
+                      <p className="text-[10px] text-gray-500 font-semibold uppercase mb-2">Additional Information</p>
+                      <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">{job.additional_info}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Screening Questions */}
+              {(job.screening_question_1 || job.screening_question_2 || job.screening_question_3) && (
+                <div className="bg-[#0f0f0f]/60 border border-[#1f1f1f] rounded-2xl p-6 md:p-8 backdrop-blur-md">
+                  <h3 className="text-base font-bold text-white mb-5 uppercase tracking-wider border-l-2 border-[#FF5A2C] pl-3">
+                    Screening Questions
+                  </h3>
+                  <ul className="space-y-3">
+                    {[job.screening_question_1, job.screening_question_2, job.screening_question_3].filter(Boolean).map((q, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-sm text-gray-300">
+                        <span className="w-6 h-6 rounded-full bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 flex items-center justify-center text-[#FF5A2C] text-xs font-bold flex-shrink-0 mt-0.5">
+                          {idx + 1}
+                        </span>
+                        {q}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </motion.div>
 
             {/* Right Column: Dynamic Form */}
@@ -393,7 +678,7 @@ export default function JobDetailPage() {
                   </motion.div>
                   <h3 className="text-2xl font-bold mb-2 text-white">Application Submitted!</h3>
                   <p className="text-gray-400 max-w-sm mb-8 text-sm leading-relaxed">
-                    Thank you for applying to the {job.title} position. Our team will review your application and get back to you soon.
+                    Thank you for applying to the {job.job_title} position. Our team will review your application and get back to you soon.
                   </p>
                   <button
                     onClick={() => {
@@ -462,32 +747,26 @@ export default function JobDetailPage() {
                         />
                       </div>
                     </div>
-                  </div>
-
-                  {/* CONDITIONAL CUSTOM FIELDS */}
-                  <div className="space-y-4">
-                    {job.customize_phone && (
-                      <div>
-                        <label className="block text-xs font-semibold text-gray-300 mb-2">
-                          Phone Number <span className="text-[#FF5A2C]">*</span>
-                        </label>
-                        <div className="relative group">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#FF5A2C] transition-colors">
-                            <Phone size={16} />
-                          </span>
-                          <input
-                            type="tel"
-                            name="phone"
-                            value={formData.phone || ''}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full bg-[#161616] border border-white/5 focus:border-[#FF5A2C] rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#FF5A2C]/10 transition text-sm"
-                            placeholder="+91 98765 43210"
-                          />
-                        </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-300 mb-2">
+                        Phone Number <span className="text-[#FF5A2C]">*</span>
+                      </label>
+                      <div className="relative group">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#FF5A2C] transition-colors">
+                          <Phone size={16} />
+                        </span>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone || ''}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full bg-[#161616] border border-white/5 focus:border-[#FF5A2C] rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#FF5A2C]/10 transition text-sm"
+                          placeholder="+91 98765 43210"
+                        />
                       </div>
-                    )}
-                    {job.customize_portfolio && (
+                    </div>
+                    {job.portfolio_required && (
                       <div>
                         <label className="block text-xs font-semibold text-gray-300 mb-2">
                           Portfolio / GitHub Link <span className="text-[#FF5A2C]">*</span>
@@ -510,71 +789,67 @@ export default function JobDetailPage() {
                     )}
                   </div>
 
-                  {job.customize_cover_letter && (
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-300 mb-2">
-                        Cover Letter <span className="text-[#FF5A2C]">*</span>
-                      </label>
-                      <textarea
-                        name="cover_letter"
-                        value={formData.cover_letter || ''}
-                        onChange={handleInputChange}
-                        required
-                        rows={4}
-                        className="w-full bg-[#161616] border border-white/5 focus:border-[#FF5A2C] rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#FF5A2C]/10 transition text-sm resize-none"
-                        placeholder="Tell us why you are a great fit for this role..."
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-2">
+                      Cover Letter <span className="text-[#FF5A2C]">*</span>
+                    </label>
+                    <textarea
+                      name="cover_letter"
+                      value={formData.cover_letter || ''}
+                      onChange={handleInputChange}
+                      required
+                      rows={4}
+                      className="w-full bg-[#161616] border border-white/5 focus:border-[#FF5A2C] rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#FF5A2C]/10 transition text-sm resize-none"
+                      placeholder="Tell us why you are a great fit for this role..."
+                    />
+                  </div>
 
-                  {job.customize_resume && (
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-300 mb-2">
-                        Upload Resume (PDF, DOC, DOCX) <span className="text-[#FF5A2C]">*</span>
-                      </label>
-                      
-                      {resumeFile ? (
-                        <div className="border border-white/10 rounded-xl p-4 bg-[#161616] flex items-center justify-between">
-                          <div className="flex items-center gap-3 overflow-hidden">
-                            <div className="w-10 h-10 bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 rounded-lg flex items-center justify-center flex-shrink-0 text-[#FF5A2C]">
-                              <FileText size={18} />
-                            </div>
-                            <div className="overflow-hidden">
-                              <p className="text-xs font-semibold text-white truncate">{resumeFile.name}</p>
-                              <p className="text-[10px] text-gray-400 mt-0.5">{(resumeFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                            </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 mb-2">
+                      Upload Resume (PDF, DOC, DOCX) <span className="text-[#FF5A2C]">*</span>
+                    </label>
+                    
+                    {resumeFile ? (
+                      <div className="border border-white/10 rounded-xl p-4 bg-[#161616] flex items-center justify-between">
+                        <div className="flex items-center gap-3 overflow-hidden">
+                          <div className="w-10 h-10 bg-[#FF5A2C]/10 border border-[#FF5A2C]/20 rounded-lg flex items-center justify-center flex-shrink-0 text-[#FF5A2C]">
+                            <FileText size={18} />
                           </div>
-                          <button
-                            type="button"
-                            onClick={handleRemoveFile}
-                            className="text-gray-400 hover:text-[#ff3333] p-1.5 hover:bg-white/5 rounded-lg transition"
-                          >
-                            <X size={16} />
-                          </button>
+                          <div className="overflow-hidden">
+                            <p className="text-xs font-semibold text-white truncate">{resumeFile.name}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{(resumeFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="relative border border-dashed border-white/10 hover:border-[#FF5A2C]/50 rounded-xl p-6 flex flex-col items-center justify-center transition cursor-pointer group bg-[#161616]/30">
-                          <input
-                            type="file"
-                            accept=".pdf,.doc,.docx"
-                            onChange={handleFileChange}
-                            required
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                          />
-                          <Upload className="text-gray-500 group-hover:text-[#FF5A2C] mb-2.5 transition" size={22} />
-                          <p className="text-xs text-gray-300 font-medium text-center">
-                            Click or drag file to upload
-                          </p>
-                          <p className="text-[10px] text-gray-500 mt-1">
-                            PDF, DOC, or DOCX (Max 5MB)
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        <button
+                          type="button"
+                          onClick={handleRemoveFile}
+                          className="text-gray-400 hover:text-[#ff3333] p-1.5 hover:bg-white/5 rounded-lg transition"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative border border-dashed border-white/10 hover:border-[#FF5A2C]/50 rounded-xl p-6 flex flex-col items-center justify-center transition cursor-pointer group bg-[#161616]/30">
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          onChange={handleFileChange}
+                          required
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <Upload className="text-gray-500 group-hover:text-[#FF5A2C] mb-2.5 transition" size={22} />
+                        <p className="text-xs text-gray-300 font-medium text-center">
+                          Click or drag file to upload
+                        </p>
+                        <p className="text-[10px] text-gray-500 mt-1">
+                          PDF, DOC, or DOCX (Max 5MB)
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
                   {/* TEMPLATE-SPECIFIC FIELDS */}
-                  {job.application_template === 'internship' && (
+                  {job.employment_type === 'Internship' && (
                     <div className="border-t border-white/5 pt-5 space-y-4">
                       <h3 className="text-xs font-bold text-[#FF5A2C] uppercase tracking-wider">Education Details</h3>
                       <div className="space-y-4">
@@ -660,7 +935,7 @@ export default function JobDetailPage() {
                     </div>
                   )}
 
-                  {job.application_template === 'fulltime' && (
+                  {job.employment_type === 'Full-time' && (
                     <div className="border-t border-white/5 pt-5 space-y-4">
                       <h3 className="text-xs font-bold text-[#FF5A2C] uppercase tracking-wider">Professional Experience</h3>
                       <div className="space-y-4">
